@@ -1,22 +1,54 @@
 <!DOCTYPE html>
 <html>
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <head>
-<title>Details</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Result Details</title>
+
 <style>
-body { font-family: Poppins, sans-serif; padding: 20px; background: #eef3ff; }
-table { border-collapse: collapse; width: 100%; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 3px 10px rgba(0,0,0,0.15); }
+body { font-family: Poppins, sans-serif; padding: 16px; background: #eef3ff; }
+#result-card {
+  max-width: 800px;
+  margin: auto;
+  background: white;
+  padding: 18px;
+  border-radius: 12px;
+  box-shadow: 0 3px 14px rgba(0,0,0,0.18);
+}
+table { border-collapse: collapse; width: 100%; margin-top: 14px; }
 th, td { padding: 10px; border-bottom: 1px solid #ddd; text-align: center; }
-.back-btn { background: #333; color: white; padding: 8px 14px; border-radius: 6px; display: inline-block; text-decoration: none; margin-top: 20px; }
+.button-row { margin-top: 20px; display: flex; gap: 10px; justify-content: center; }
+.btn {
+  padding: 10px 16px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+  font-size: 15px;
+  border: none;
+  text-decoration: none;
+}
+.back-btn { background:#333; color:white; }
+.pdf-btn { background:#0057d8; color:white; }
+
+/* Mobile Friendly */
+@media(max-width:600px){
+  th, td { font-size: 13px; padding: 6px; }
+  .btn { padding: 8px 12px; font-size: 14px; }
+}
 </style>
 </head>
+
 <body>
 
-<h2>{{data.name}}</h2>
-<p><b>Roll:</b> {{data.roll}}<br>
-<b>Registration:</b> {{data.reg}}<br>
-<b>Total:</b> {{data.total_marks}}<br>
-<b>Percentage:</b> {{data.percentage}}</p>
+<div id="result-card">
+
+<h2 style="text-align:center;">{{data.name}}</h2>
+
+<p style="text-align:center; margin-top:10px;">
+<b>Roll:</b> {{data.roll}} &nbsp; | &nbsp;
+<b>Reg:</b> {{data.reg}}<br>
+<b>Total:</b> {{data.total_marks}} / {{data.out_of}} <br>
+<b>Percentage:</b> {{data.percentage}}
+</p>
 
 <table>
 <tr><th>Subject</th><th>Code</th><th>Marks</th><th>%</th><th>Result</th></tr>
@@ -31,8 +63,48 @@ th, td { padding: 10px; border-bottom: 1px solid #ddd; text-align: center; }
 {% endfor %}
 </table>
 
-<a href="javascript:history.back()" class="back-btn">← Back</a>
+</div>
+
+
+<div class="button-row">
+<a href="javascript:history.back()" class="btn back-btn">← Back</a>
+<button id="pdf-btn" class="btn pdf-btn">Download PDF</button>
+</div>
+
+
+<!-- PDF Libraries -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+<script>
+window.onload = function(){
+  document.getElementById("pdf-btn").onclick = async function(){
+    
+    const { jsPDF } = window.jspdf;
+
+    const card = document.getElementById("result-card");
+    const buttons = document.querySelector(".button-row");
+
+    // Hide buttons for cleaner PDF
+    buttons.style.display = "none";
+
+    await new Promise(r => requestAnimationFrame(r));
+
+    const canvas = await html2canvas(card, { scale: 3, backgroundColor: "#ffffff" });
+    const img = canvas.toDataURL("image/png");
+
+    // Show buttons again
+    buttons.style.display = "flex";
+
+    const pdf = new jsPDF("p", "mm", "a4");
+    const width = pdf.internal.pageSize.getWidth();
+    const height = (canvas.height * width) / canvas.width;
+
+    pdf.addImage(img, "PNG", 0, 0, width, height);
+    pdf.save(`Result_{{data.roll}}.pdf`);
+  };
+};
+</script>
 
 </body>
-
 </html>
