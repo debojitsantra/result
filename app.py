@@ -1,6 +1,7 @@
 from flask import Flask, render_template, request
 from fetcher import fetch_html, parse
 from collections import defaultdict
+import time
 
 app = Flask(__name__)
 cache = {}
@@ -9,21 +10,22 @@ cache = {}
 def index():
     if request.method == "POST":
         roll_start = int(request.form["roll_start"])
-        reg_start = int(request.form["reg_start"])
-        count = int(request.form["count"])
+        reg_start  = int(request.form["reg_start"])
+        count      = int(request.form["count"])
 
         results = []
 
         for i in range(count):
             roll = roll_start + i
             reg  = reg_start + i
+
+            time.sleep(0.25)  # prevents server overload / throttling
             html = fetch_html(roll, reg)
 
             if not html or "Candidate Name" not in html:
-                results.append({
-                    "roll": roll, "reg": reg, "name": "Not Found",
-                    "marks": "-", "percent": "-", "status": "Not Found"
-                })
+                results.append({"roll": roll, "reg": reg, "name": "Not Found",
+                                "marks": "-", "percent": "-", "status": "Not Found",
+                                "subjects": []})
                 continue
 
             data = parse(html)
@@ -42,12 +44,14 @@ def index():
 
         topper = defaultdict(lambda: {"name": "-", "roll": "-", "marks": -1})
         for r in results:
-            if r["name"] == "Not Found": 
-                continue
-            for s in r["subjects"]:
-                m = int(s["obtained"])
-                if m > topper[s["code"]]["marks"]:
-                    topper[s["code"]] = {"name": r["name"], "roll": r["roll"], "marks": m}
+            if r["subjects"]:
+                for s in r["subjects"]:
+                    try:
+                        m = int(s["obtained"])
+                        if m > topper[s["code"]]["marks"]:
+                            topper[s["code"]] = {"name": r["name"], "roll": r["roll"], "marks": m}
+                    except:
+                        pass
 
         return render_template("results.html", results=results, topper=topper)
 

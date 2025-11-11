@@ -1,18 +1,28 @@
-import subprocess, os
+import subprocess
 from bs4 import BeautifulSoup
 
 URL = "https://result.wb.gov.in/result.php"
-OPENSSL_CONF = os.path.expanduser("~/.config/openssl/legacy.cnf")
 
 def fetch_html(roll, reg):
-    roll, reg = str(roll), str(reg)
-    rollpre, rollno = roll[:6], roll[6:]
+    roll = str(roll)
+    reg = str(reg)
 
-    cmd = f'OPENSSL_CONF="{OPENSSL_CONF}" curl --insecure --tlsv1 -s -X POST ' \
-          f'-d "rollpre={rollpre}&rollno={rollno}&regnno={reg}" {URL}'
+    rollpre = roll[:6]
+    rollno = roll[6:]
+
+    cmd = [
+        "curl",
+        "--silent",
+        "--insecure",
+        "--tlsv1",
+        "--ciphers", "DEFAULT:@SECLEVEL=1",   # ✅ legacy support
+        "-X", "POST",
+        "-d", f"rollpre={rollpre}&rollno={rollno}&regnno={reg}",
+        URL
+    ]
 
     try:
-        return subprocess.check_output(cmd, shell=True, text=True)
+        return subprocess.check_output(cmd, text=True)
     except:
         return None
 
