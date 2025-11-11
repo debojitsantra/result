@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<head>
+<title>Details</title>
+<style>
+body { font-family: Poppins, sans-serif; padding: 20px; background: #eef3ff; }
+table { border-collapse: collapse; width: 100%; background: white; border-radius: 12px; overflow: hidden; box-shadow: 0 3px 10px rgba(0,0,0,0.15); }
+th, td { padding: 10px; border-bottom: 1px solid #ddd; text-align: center; }
+.back-btn { background: #333; color: white; padding: 8px 14px; border-radius: 6px; display: inline-block; text-decoration: none; margin-top: 20px; }
+</style>
+</head>
+<body>
+
+<h2>{{data.name}}</h2>
+<p><b>Roll:</b> {{data.roll}}<br>
+<b>Registration:</b> {{data.reg}}<br>
+<b>Total:</b> {{data.total_marks}}<br>
+<b>Percentage:</b> {{data.percentage}}</p>
+
+<table>
+<tr><th>Subject</th><th>Code</th><th>Marks</th><th>%</th><th>Result</th></tr>
+{% for s in data.subjects %}
+<tr>
+<td>{{s.type}}</td>
+<td>{{s.code}}</td>
+<td>{{s.obtained}}</td>
+<td>{{s.percent}}</td>
+<td>{{s.result}}</td>
+</tr>
+{% endfor %}
+</table>
+
+<a href="javascript:history.back()" class="back-btn">← Back</a>
+
+</body>
+</html>

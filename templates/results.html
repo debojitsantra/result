@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<head>
+<title>Results</title>
+<style>
+body { font-family: Poppins, sans-serif; padding: 20px; background: #eef3ff; }
+table { width: 100%; border-collapse: collapse; margin-top: 20px; }
+th, td { padding: 10px; border-bottom: 1px solid #ccc; text-align: center; font-size: 15px; }
+th { background: #002b6b; color: white; }
+.pass { color: #008f3d; font-weight: bold; }
+.fail { color: #d10000; font-weight: bold; }
+.notfound { color: gray; font-weight: bold; }
+#searchBox { width: 250px; padding: 8px; border-radius: 6px; border: 1px solid #777; }
+.show-btn {
+  background: #0057d8; color: white; padding: 6px 12px;
+  text-decoration: none; border-radius: 6px; display: inline-block;
+}
+.show-btn:hover { background: #003da1; }
+#topper-box { background: white; padding: 12px; border-radius: 8px; box-shadow: 0 3px 10px rgba(0,0,0,0.15); margin-bottom: 20px; }
+.back-btn { background: #333; color: white; padding: 8px 14px; border-radius: 6px; display: inline-block; margin-top: 20px; text-decoration: none; }
+
+/* Mobile Support */
+@media(max-width:600px){
+  table { font-size: 13px; }
+  th, td { padding: 6px; }
+  #searchBox { width: 100%; }
+}
+</style>
+</head>
+<body>
+
+<h2>Result Summary</h2>
+
+<input type="text" id="searchBox" placeholder="Search Roll / Name / Marks / PASS / SUPP">
+<br><br>
+
+<div id="topper-box">
+<h3>🏆 Subject Toppers</h3>
+<table>
+<tr><th>Subject</th><th>Name</th><th>Roll</th><th>Marks</th></tr>
+{% for subject,data in topper.items() %}
+<tr><td>{{subject}}</td><td>{{data.name}}</td><td>{{data.roll}}</td><td>{{data.marks}}</td></tr>
+{% endfor %}
+</table>
+</div>
+
+<table id="resultTable">
+<tr><th>Roll</th><th>Name</th><th>Total Marks</th><th>Percentage</th><th>Status</th><th></th></tr>
+{% for r in results %}
+<tr>
+<td>{{r.roll}}</td>
+<td>{{r.name}}</td>
+<td>{{r.marks}}</td>
+<td>{{r.percent}}</td>
+
+{% if r.status == "PASS" %}
+<td class="pass">PASS</td>
+{% elif r.status == "SUPP" %}
+<td class="fail">SUPP</td>
+{% else %}
+<td class="notfound">Not Found</td>
+{% endif %}
+
+<td>
+{% if r.name != "Not Found" %}
+<a class="show-btn" href="/detail/{{r.roll}}">Show</a>
+{% else %}
+---
+{% endif %}
+</td>
+</tr>
+{% endfor %}
+</table>
+
+<a href="/" class="back-btn">← Back</a>
+
+<script>
+document.getElementById("searchBox").addEventListener("keyup", function () {
+  let filter = this.value.toLowerCase();
+  let rows = document.querySelectorAll("#resultTable tr");
+  for(let i=1; i<rows.length; i++){
+    let text = rows[i].innerText.toLowerCase();
+    rows[i].style.display = text.includes(filter) ? "" : "none";
+  }
+});
+</script>
+
+</body>
+</html>
